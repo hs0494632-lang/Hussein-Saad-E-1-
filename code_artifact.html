@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>مهمة الفضاء: المضارع البسيط - إعداد حسين سعد</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #050816;
+            color: #ffffff;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* خلفية النجوم المتحركة */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        }
+
+        /* بطاقات الفضاء الزجاجية */
+        .space-card {
+            background: rgba(17, 25, 40, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 25px rgba(79, 70, 229, 0.25), inset 0 0 15px rgba(99, 102, 241, 0.1);
+        }
+
+        /* شارة إعداد المعلم */
+        .neon-badge {
+            background: linear-gradient(90deg, #4f46e5, #9333ea, #ec4899);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.6);
+        }
+
+        /* أزرار الفضاء */
+        .btn-space {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+            touch-action: manipulation;
+        }
+
+        @media (hover: hover) {
+            .btn-space:hover:not(:disabled) {
+                transform: translateY(-2px) scale(1.01);
+                box-shadow: 0 8px 25px rgba(139, 92, 246, 0.65);
+            }
+            .option-btn:hover:not(:disabled) {
+                background: rgba(51, 65, 85, 0.95);
+                border-color: #818cf8;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+            }
+        }
+
+        .btn-space:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .option-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(99, 102, 241, 0.4);
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        .option-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .option-correct {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .option-wrong {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
+        }
+
+        /* أنيميشن الطفو في الفضاء */
+        @keyframes floatSpace {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .floating {
+            animation: floatSpace 3.5s ease-in-out infinite;
+        }
+
+        .ltr-sentence {
+            direction: ltr;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="flex flex-col justify-between">
+
+    <!-- خلفية الفضاء والنجوم -->
+    <canvas id="starfield"></canvas>
+
+    <!-- الهيدر العلوي الثابت: إعداد حسين سعد (متوافق مع الموبايل والتابلت والكمبيوتر) -->
+    <header class="w-full py-2.5 sm:py-3 px-3 sm:px-6 bg-slate-900/90 backdrop-blur-md border-b border-indigo-500/30 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- شعار وعنوان الدرس -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-indigo-600/30 border border-indigo-400 flex items-center justify-center text-indigo-300 shadow-inner shrink-0">
+                    <i class="fa-solid fa-user-astronaut text-lg sm:text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs sm:text-sm md:text-base font-bold text-indigo-200 leading-tight">مهمة الفضاء: المضارع البسيط</h1>
+                    <p id="header-student-name" class="text-[11px] sm:text-xs text-cyan-400 font-bold hidden"></p>
+                </div>
+            </div>
+
+            <!-- شارة إعداد المعلم -->
+            <div class="neon-badge px-3.5 sm:px-5 py-1 sm:py-1.5 rounded-full text-white font-black text-xs sm:text-sm md:text-base flex items-center gap-1.5 sm:gap-2 tracking-wide shrink-0 shadow-md">
+                <i class="fa-solid fa-star text-yellow-300 animate-spin text-xs sm:text-sm" style="animation-duration: 6s;"></i>
+                <span>إعداد حسين سعد</span>
+            </div>
+
+            <!-- زر كتم الصوت وزر الشفرات السريعة -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="quick-rules-btn" onclick="toggleRulesModal()" class="hidden px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 hover:bg-amber-500/30 text-xs sm:text-sm font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-key"></i>
+                    <span>مفاتيح الحل</span>
+                </button>
+                <button id="sound-toggle" onclick="toggleSound()" class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-600 text-slate-300 hover:text-white flex items-center justify-center transition shrink-0" title="تشغيل/كتم الصوت">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-sm sm:text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-5 md:p-6 w-full max-w-4xl mx-auto">
+
+        <!-- 1. شاشة البداية وإدخال اسم الطالب -->
+        <section id="screen-welcome" class="w-full space-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 text-center relative overflow-hidden">
+            <div class="floating inline-block mb-3 sm:mb-4">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 mx-auto rounded-full bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/50 border-2 border-indigo-300">
+                    <i class="fa-solid fa-rocket text-4xl sm:text-5xl md:text-6xl text-white"></i>
+                </div>
+            </div>
+
+            <h2 class="text-xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-indigo-300 to-pink-400 mb-2 sm:mb-3 leading-snug">
+                أهلاً بك في رحلة غزو الفضاء!
+            </h2>
+            <p class="text-slate-300 text-xs sm:text-base md:text-lg max-w-xl mx-auto mb-5 sm:mb-6 leading-relaxed">
+                مهمتك يا بطل للصف الأول الإعدادي هي تخطي <span class="text-yellow-400 font-bold">40 كويكباً</span> في زمن المضارع البسيط <span class="text-cyan-300 font-semibold">(Present Simple)</span> باستخدام شفرات الحل الذكية بدون تعقيد!
+            </p>
+
+            <!-- حقل إدخال اسم الطالب -->
+            <div class="max-w-md mx-auto mb-5 sm:mb-6">
+                <label for="student-name-input" class="block text-right text-indigo-200 font-bold mb-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-id-card-clip ml-1 text-cyan-400"></i> اكتب اسمك يا قائد المركبة:
+                </label>
+                <input type="text" id="student-name-input" placeholder="مثال: أحمد محمد..." autocomplete="name"
+                    class="w-full px-4 py-3.5 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-900/90 border-2 border-indigo-500/60 text-white placeholder-slate-500 text-base sm:text-lg font-bold focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition text-center"
+                    onkeypress="if(event.key === 'Enter') goToRulesScreen()">
+                <p id="name-error" class="text-rose-400 text-xs sm:text-sm font-bold mt-2 hidden">
+                    <i class="fa-solid fa-triangle-exclamation ml-1"></i> من فضلك اكتب اسمك أولاً يا بطل لبدء المهمة!
+                </p>
+            </div>
+
+            <button onclick="goToRulesScreen()" class="w-full sm:w-auto btn-space px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg md:text-xl text-white inline-flex items-center justify-center gap-3">
+                <span>استلم شفرات الفضاء وابدأ</span>
+                <i class="fa-solid fa-shuttle-space fa-flip-horizontal"></i>
+            </button>
+        </section>
+
+        <!-- 2. شاشة مفاتيح الحل والشفرات الذكية (قبل بدء الأسئلة) -->
+        <section id="screen-rules" class="w-full space-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 hidden">
+            <div class="text-center mb-4 sm:mb-6">
+                <span class="inline-block px-3 sm:px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 text-xs sm:text-sm font-bold">
+                    <i class="fa-solid fa-wand-magic-sparkles ml-1"></i> دليلك السحري للحل بدون ترجمة!
+                </span>
+                <h2 class="text-lg sm:text-2xl md:text-3xl font-black text-white mt-2 leading-snug">
+                    مرحبًا القائد <span id="rules-student-name" class="text-cyan-400"></span>! إليك الـ 6 مفاتيح للدرجة النهائية
+                </h2>
+                <p class="text-slate-300 text-xs sm:text-sm mt-1">
+                    حتى لو مش فاهم معنى الجملة، عيونك تدور على المفتاح وتختار الإجابة فوراً:
+                </p>
+            </div>
+
+            <!-- شبكة المفاتيح الـ 6 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6">
+                <!-- مفتاح 1 -->
+                <div class="bg-slate-900/80 border border-pink-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-pink-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-crown"></i>
+                        <span>1. فريق المفرد بيحب حرف (S)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        أول ما تلاقي الفاعل <span class="text-yellow-300 font-bold">(He / She / It / أو اسم مفرد زي Ali)</span> اختار الفعل اللي آخره <span class="text-pink-400 font-bold">(s / es / ies)</span> أو <span class="text-pink-400 font-bold">has</span>.
+                    </p>
+                </div>
+
+                <!-- مفتاح 2 -->
+                <div class="bg-slate-900/80 border border-cyan-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-cyan-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-users"></i>
+                        <span>2. فريق الجمع بيحب الفعل سادة (مصدر)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        أول ما تلاقي <span class="text-yellow-300 font-bold">(I / We / You / They / أو اسم جمع زي Boys)</span> اختار الفعل <span class="text-cyan-400 font-bold">في المصدر بدون أي إضافات</span> أو <span class="text-cyan-400 font-bold">have</span>.
+                    </p>
+                </div>
+
+                <!-- مفتاح 3 -->
+                <div class="bg-slate-900/80 border border-emerald-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-emerald-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-ban"></i>
+                        <span>3. شفرة النفي والسؤال (حرامي الـ S)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        المفرد يأخذ <span class="text-emerald-300 font-bold">doesn't / Does</span> والجمع يأخذ <span class="text-emerald-300 font-bold">don't / Do</span>. <br>
+                        <span class="text-amber-300 font-bold">القاعدة الذهبية:</span> بعد <span class="underline">don't / doesn't / do / does</span> لازم الفعل يرجع <span class="text-white font-bold">مصدر سادة</span>!
+                    </p>
+                </div>
+
+                <!-- مفتاح 4 -->
+                <div class="bg-slate-900/80 border border-amber-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-amber-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>4. خدعة كلمة (never) في النفي</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        كلمة <span class="text-amber-300 font-bold">never</span> تنفي الجملة لكن <span class="text-rose-400 font-bold">مش بتسرق الـ S!</span> يعني مع <span class="text-yellow-300">He / She / It</span> الفعل بعدها يفضل بـ <span class="text-amber-300 font-bold">S</span> عادي (مثل: <span class="ltr-sentence inline-block">He never comes late</span>).
+                    </p>
+                </div>
+
+                <!-- مفتاح 5 -->
+                <div class="bg-slate-900/80 border border-purple-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-purple-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-arrows-left-right"></i>
+                        <span>5. مكان ظروف التكرار (أصعب تركة!)</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        الكلمات <span class="text-purple-300 font-bold">(always / usually / often / sometimes / never)</span> تأتي <span class="text-green-400 font-bold">قبل</span> الفعل العادي (<span class="ltr-sentence inline-block">usually plays</span>)، لكن تأتي <span class="text-yellow-300 font-bold">بعد</span> <span class="text-white font-bold">am / is / are</span> (<span class="ltr-sentence inline-block">is always</span>).
+                    </p>
+                </div>
+
+                <!-- مفتاح 6 -->
+                <div class="bg-slate-900/80 border border-blue-500/40 rounded-2xl p-3.5 sm:p-4">
+                    <div class="flex items-center gap-2 text-blue-400 font-black text-sm sm:text-base mb-1.5">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>6. امتى نختار (am/is/are)؟ وجداول المواعيد</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        لو الجملة <span class="text-rose-300 font-bold">مفيهاش فعل أصلي</span> (فيها صفة أو اسم أو مكان زي <span class="text-yellow-300">happy / clever / at home</span>) استخدم <span class="text-blue-300 font-bold">am/is/are</span>. والقطارات والطائرات والامتحانات مفرد تأخذ فعل بـ <span class="text-blue-300 font-bold">S</span>!
+                    </p>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="startGame()" class="w-full sm:w-auto btn-space px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg md:text-xl text-white inline-flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play"></i>
+                    <span>انطلق للمهمة الآن (40 سؤالاً)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. شاشة اللعب والأسئلة -->
+        <section id="screen-quiz" class="w-full space-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 hidden">
+            
+            <!-- شريط معلومات المرحلة والنتيجة الحالية -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3 sm:mb-4 pb-3 border-b border-slate-700/80">
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                    <span id="level-badge" class="px-2.5 sm:px-3 py-1 rounded-xl bg-indigo-500/30 border border-indigo-400 text-indigo-200 text-xs sm:text-sm font-bold truncate max-w-full">
+                        المستوى 1: كوكب البداية
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 sm:gap-4">
+                    <div class="text-xs sm:text-sm font-bold text-slate-300">
+                        السؤال: <span id="q-counter" class="text-cyan-400 font-black text-sm sm:text-base">1 / 40</span>
+                    </div>
+                    <div class="px-2.5 sm:px-3 py-1 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-xs sm:text-sm font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-yellow-400"></i>
+                        <span>الدرجة:</span>
+                        <span id="live-score" class="font-black text-sm sm:text-base">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- شريط تقدم الصاروخ -->
+            <div class="w-full bg-slate-900 h-3 sm:h-4 rounded-full mb-4 sm:mb-6 relative overflow-hidden border border-slate-700 p-0.5">
+                <div id="progress-bar" class="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-pink-500 transition-all duration-500" style="width: 2.5%;"></div>
+            </div>
+
+            <!-- صندوق المفتاح السحري للسؤال الحالي -->
+            <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                <span class="text-xs sm:text-sm text-indigo-300 font-semibold">
+                    <i class="fa-solid fa-satellite-dish ml-1 text-cyan-400"></i> اختر الإجابة الصحيحة لتدمير الكويكب:
+                </span>
+                <button id="hint-btn" onclick="showCurrentKeyHint()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>كشف مفتاح الجملة</span>
+                </button>
+            </div>
+
+            <!-- تلميح المفتاح قبل الحل -->
+            <div id="hint-box" class="hidden mb-3 sm:mb-4 p-3 rounded-xl bg-amber-500/15 border border-amber-400/50 text-amber-200 text-xs sm:text-sm font-bold">
+                <i class="fa-solid fa-key ml-1 text-amber-400"></i>
+                <span id="hint-text"></span>
+            </div>
+
+            <!-- نص السؤال الإنجليزي -->
+            <div class="bg-slate-900/95 border-2 border-indigo-500/40 rounded-2xl p-4 sm:p-6 md:p-7 mb-4 sm:mb-6 shadow-inner">
+                <p id="question-text" class="ltr-sentence text-base sm:text-xl md:text-2xl font-bold text-white tracking-wide leading-relaxed break-words">
+                </p>
+            </div>
+
+            <!-- الاختيارات الـ 4 -->
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-4 mb-4 sm:mb-6 ltr-sentence">
+            </div>
+
+            <!-- صندوق التعليل والشرح (يظهر فور إجابة الطالب) -->
+            <div id="explanation-box" class="hidden rounded-2xl p-3.5 sm:p-5 mb-4 border-2 transition-all">
+                <div class="flex items-start gap-2.5 sm:gap-3">
+                    <div id="exp-icon" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 text-base sm:text-xl mt-0.5"></div>
+                    <div class="flex-grow">
+                        <h4 id="exp-title" class="font-black text-sm sm:text-lg mb-1"></h4>
+                        <p id="exp-reason" class="text-slate-100 text-xs sm:text-base leading-relaxed font-semibold"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- زر السؤال التالي / تسليم المهمة -->
+            <div class="text-left">
+                <button id="next-btn" onclick="nextQuestion()" class="hidden w-full sm:w-auto btn-space px-8 py-3.5 sm:py-4 rounded-xl font-black text-base sm:text-lg text-white inline-flex items-center justify-center gap-2">
+                    <span id="next-btn-text">الكويكب التالي</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- 4. شاشة النتيجة النهائية -->
+        <section id="screen-result" class="w-full space-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 text-center hidden">
+            <div id="result-icon-wrap" class="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-xl border-4">
+            </div>
+
+            <!-- رسالة عاش يا بطل أو حاول مرة أخرى -->
+            <h2 id="result-main-msg" class="text-2xl sm:text-4xl md:text-5xl font-black mb-2"></h2>
+            <p id="result-student-line" class="text-base sm:text-xl md:text-2xl font-bold text-cyan-300 mb-5 sm:mb-6"></p>
+
+            <!-- لوحة الدرجة -->
+            <div class="max-w-md mx-auto bg-slate-900/90 border-2 border-indigo-500/40 rounded-2xl sm:rounded-3xl p-5 sm:p-6 mb-5 sm:mb-6">
+                <p class="text-slate-400 text-xs sm:text-sm font-bold mb-1">الدرجة النهائية في المهمة</p>
+                <div class="text-4xl sm:text-6xl font-black text-white my-2">
+                    <span id="final-score" class="text-emerald-400">0</span>
+                    <span class="text-slate-500 text-2xl sm:text-3xl">/ 40</span>
+                </div>
+                <div id="final-percentage" class="inline-block px-4 py-1 rounded-full text-xs sm:text-sm font-bold mt-2"></div>
+            </div>
+
+            <p id="result-advice" class="text-slate-300 text-xs sm:text-base max-w-lg mx-auto mb-6 sm:mb-8 leading-relaxed"></p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                <button onclick="restartSameStudent()" class="w-full sm:w-auto btn-space px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg text-white inline-flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>إعادة المهمة</span>
+                </button>
+                <button onclick="resetToNewStudent()" class="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-600 font-bold text-base text-slate-200 inline-flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>طالب جديد</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- نافذة منبثقة لمفاتيح الحل أثناء اللعب -->
+    <div id="rules-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="space-card rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto border-2 border-amber-400/50">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                <h3 class="text-base sm:text-xl font-black text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-key"></i>
+                    <span>مفاتيح الحل السحرية (بدون ترجمة)</span>
+                </h3>
+                <button onclick="toggleRulesModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-2.5 sm:space-y-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-pink-500/30">
+                    <strong class="text-pink-400">1. فاعل مفرد (He / She / It / اسم مفرد):</strong> نختار الفعل المنتهي بـ <span class="text-yellow-300 font-bold">s / es / ies</span> أو <span class="text-yellow-300 font-bold">has</span>.
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-cyan-500/30">
+                    <strong class="text-cyan-400">2. فاعل جمع (I / We / You / They / اسم جمع):</strong> نختار <span class="text-yellow-300 font-bold">الفعل في المصدر (سادة)</span> أو <span class="text-yellow-300 font-bold">have</span>.
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-emerald-500/30">
+                    <strong class="text-emerald-400">3. النفي والسؤال (don't / doesn't / Do / Does):</strong> المفرد يأخذ <span class="text-yellow-300 font-bold">doesn't / Does</span> والجمع يأخذ <span class="text-yellow-300 font-bold">don't / Do</span>، وبعدهم دائماً <span class="text-white font-bold underline">فعل في المصدر بدون أي إضافات</span>.
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-amber-500/30">
+                    <strong class="text-amber-400">4. خدعة never:</strong> تنفي الجملة لكن <span class="text-rose-400 font-bold">لا تحذف الـ S</span> مع الفاعل المفرد!
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-purple-500/30">
+                    <strong class="text-purple-400">5. مكان ظروف التكرار (always/usually/often/sometimes/never):</strong> تأتي <span class="text-green-400 font-bold">قبل الفعل الأصلي</span> (مثل: usually plays)، وتأتي <span class="text-yellow-300 font-bold">بعد am / is / are</span> (مثل: is always).
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-blue-500/30">
+                    <strong class="text-blue-400">6. السؤال عن عدد المرات والوقت:</strong> إذا وجدت في الإجابة <span class="text-yellow-300 font-bold">once / twice / three times / every</span> اختر <span class="text-white font-bold">How often</span>.
+                </div>
+            </div>
+            <div class="mt-5 text-center">
+                <button onclick="toggleRulesModal()" class="btn-space px-6 py-2.5 rounded-xl font-bold text-white text-sm sm:text-base">
+                    فهمت الشفرة، العودة للسؤال
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- الفوتر -->
+    <footer class="w-full py-2.5 text-center text-xs text-slate-400 border-t border-slate-800/80 bg-slate-950/70">
+        جميع الحقوق محفوظة &copy; <span class="text-indigo-300 font-bold">إعداد حسين سعد</span> - الصف الأول الإعدادي
+    </footer>
+
+    <!-- جافاسكريبت اللعبة والأسئلة الـ 40 -->
+    <script>
+        // ==========================================
+        // 1. مؤثرات الصوت التفاعلية (Web Audio API)
+        // ==========================================
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch (e) {
+                console.warn("AudioContext not supported");
+            }
+        }
+
+        function playTone(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                    osc.start(now);
+                    osc.stop(now + 0.45);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(150, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, now + i * 0.12);
+                        g.gain.setValueAtTime(0.15, now + i * 0.12);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.35);
+                        o.start(now + i * 0.12);
+                        o.stop(now + i * 0.12 + 0.35);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-sm sm:text-base text-cyan-400';
+                playTone('click');
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-sm sm:text-base text-rose-400';
+            }
+        }
+
+        // ==========================================
+        // 2. قاعدة بيانات الـ 40 سؤالاً بالتدرج مع الشفرات والتعليل
+        // ==========================================
+        const questionsData = [
+            // --- المستوى 1: كوكب البداية (الفاعل المفرد والجمع المباشر 1 - 8) ---
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "1. He _______ football every Friday.",
+                options: ["play", "plays", "playing", "played"],
+                ans: 1,
+                hint: "أول كلمة في الجملة هي (He) مفرد.. والمفرد بيحب الفعل اللي آخره إيه؟",
+                explanation: "اخترنا (plays) لأن الفاعل في أول الجملة (He) مفرد، ومع المفرد نضيف (s) للفعل في المضارع البسيط."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "2. They _______ to school by bus every day.",
+                options: ["go", "goes", "going", "is going"],
+                ans: 0,
+                hint: "الفاعل هنا (They) جمع.. وفريق الجمع بيحب الفعل سادة بدون إضافات!",
+                explanation: "اخترنا (go) في المصدر بدون أي إضافات لأن الفاعل (They) جمع."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "3. Mona usually _______ her mother in the kitchen.",
+                options: ["help", "helping", "helps", "to help"],
+                ans: 2,
+                hint: "(Mona) اسم بنت مفرد (= She)، والمفرد لازم ياخد حرف (s)!",
+                explanation: "اخترنا (helps) لأن الفاعل (Mona) اسم مفرد، والفعل مع المفرد يأخذ (s)."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "4. I always _______ my homework in the evening.",
+                options: ["does", "do", "doing", "did"],
+                ans: 1,
+                hint: "الضمير (I) يتعامل معاملة فريق الجمع في المضارع البسيط (فعل في المصدر سادة)!",
+                explanation: "اخترنا (do) لأن الضمير (I) يأخذ الفعل في المصدر بدون إضافات في زمن المضارع البسيط."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "5. We _______ English and Arabic at school.",
+                options: ["learns", "learning", "learn", "to learn"],
+                ans: 2,
+                hint: "الفاعل (We) جمع.. اختار الفعل السادة اللي مفيهوش إضافات!",
+                explanation: "اخترنا (learn) في المصدر لأن الفاعل (We) جمع لا يقبل إضافة (s)."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "6. A cat _______ milk very much.",
+                options: ["like", "likes", "liking", "are liking"],
+                ans: 1,
+                hint: "(A cat) يعني قطة واحدة (مفرد = It).. والمفرد بيحب الـ (s)!",
+                explanation: "اخترنا (likes) لأن الفاعل (A cat) اسم مفرد غير عاقل (= It)، فيأخذ الفعل المضاف له (s)."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "7. The boys _______ tennis at the club on Saturdays.",
+                options: ["plays", "playing", "play", "is playing"],
+                ans: 2,
+                hint: "خللي بالك! كلمة (The boys) اسم جمع (= They)، يبقى الفعل في المصدر بدون s!",
+                explanation: "اخترنا (play) بدون (s) لأن الفاعل (The boys) اسم جمع."
+            },
+            {
+                level: "المستوى 1: كوكب البداية (أساسيات المفرد والجمع)",
+                q: "8. My father _______ in a big hospital.",
+                options: ["work", "works", "working", "are working"],
+                ans: 1,
+                hint: "(My father) يعني أبي (مفرد = He).. اختار الفعل اللي فيه (s)!",
+                explanation: "اخترنا (works) لأن الفاعل (My father) مفرد، فنضيف للفعل حرف (s)."
+            },
+
+            // --- المستوى 2: حزام الكويكبات (قواعد إضافة es / ies وفعل يملك have/has 9 - 16) ---
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "9. Sara _______ TV every night.",
+                options: ["watch", "watchs", "watches", "watching"],
+                ans: 2,
+                hint: "(Sara) مفرد، والفعل (watch) آخره (ch).. الأفعال اللي آخرها ch مع المفرد بنضيف لها إيه؟",
+                explanation: "اخترنا (watches) بالـ (es) لأن الفاعل (Sara) مفرد والفعل ينتهي بـ (ch)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "10. Hany _______ hard for his exams.",
+                options: ["study", "studys", "studies", "studying"],
+                ans: 2,
+                hint: "الفاعل (Hany) مفرد، والفعل (study) آخره (y) قبلها حرف ساكن (d).. بنحول الـ y لإيه؟",
+                explanation: "اخترنا (studies) لأن الفاعل مفرد والفعل ينتهي بحرف (y) مسبوق بحرف ساكن (d)، فنحذف (y) ونضيف (ies)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "11. Ali _______ a new blue bike.",
+                options: ["have", "has", "having", "is having"],
+                ans: 1,
+                hint: "(Ali) مفرد، والمفرد بيحب الكلمة اللي آخرها حرف (s) من عيلة يملك!",
+                explanation: "اخترنا (has) لأن الفاعل (Ali) مفرد، والمفرد يأخذ (has) بينما الجمع يأخذ (have)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "12. My sister _______ her hands before eating.",
+                options: ["wash", "washs", "washes", "washing"],
+                ans: 2,
+                hint: "(My sister) مفرد، والفعل ينتهي بـ (sh).. इसलिए نضيف له (es)!",
+                explanation: "اخترنا (washes) لأن الفاعل مفرد والفعل (wash) ينتهي بـ (sh) فيُضاف له (es)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "13. We _______ seven lessons every day.",
+                options: ["has", "have", "having", "are having"],
+                ans: 1,
+                hint: "الفاعل (We) جمع.. هل الجمع يأخذ has أم have؟",
+                explanation: "اخترنا (have) لأن الفاعل (We) جمع، وضمائر الجمع (I/We/You/They) تأخذ (have)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "14. A mechanic _______ cars in the garage.",
+                options: ["fix", "fixs", "fixes", "fixing"],
+                ans: 2,
+                hint: "(A mechanic) مفرد، والفعل (fix) آخره حرف (x).. الأفعال المنتهية بـ (ss/sh/ch/x/o) نضيف لها (es)!",
+                explanation: "اخترنا (fixes) لأن الفاعل مفرد والفعل ينتهي بحرف (x) فنضيف له (es)."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "15. Tarek _______ computer games on Fridays.",
+                options: ["plaies", "plays", "play", "playing"],
+                ans: 1,
+                hint: "خدعة جميلة! الفعل (play) آخره (y) بس قبلها حرف متحرك (a).. هل بنحذف الـ y ولا بنحط s بس؟",
+                explanation: "اخترنا (plays) لأن حرف (y) قبله حرف متحرك (a)، فلا نحذف الـ (y) بل نضيف (s) فقط."
+            },
+            {
+                level: "المستوى 2: حزام الكويكبات (نهايات es / ies و have/has)",
+                q: "16. My uncle _______ a plane. He is a pilot.",
+                options: ["fly", "flys", "flies", "flying"],
+                ans: 2,
+                hint: "(My uncle) مفرد، والفعل (fly) ينتهي بـ (y) قبلها حرف ساكن (l)!",
+                explanation: "اخترنا (flies) لأن الفاعل مفرد والفعل (fly) ينتهي بـ (y) قبلها حرف ساكن، فتقلب إلى (ies)."
+            },
+
+            // --- المستوى 3: مجرة النفي الذكي (don't / doesn't / never 17 - 24) ---
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "17. She _______ like fish.",
+                options: ["don't", "doesn't", "isn't", "aren't"],
+                ans: 1,
+                hint: "الفاعل (She) مفرد، وبعد النقط فيه فعل في المصدر (like).. المفرد بيتنفي بإيه؟",
+                explanation: "اخترنا (doesn't) لأن الفاعل (She) مفرد وبعدها فعل في المصدر (like)."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "18. He doesn't _______ late on school days.",
+                options: ["gets up", "get up", "getting up", "got up"],
+                ans: 1,
+                hint: "حرامي الـ S موجود في الجملة! بعد (doesn't) الفعل لازم يرجع إيه؟",
+                explanation: "اخترنا (get up) في المصدر بدون (s) لأن (doesn't) تسحب الـ (s) ويأتي بعدها الفعل في المصدر دائماً."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "19. I _______ watch TV in the morning.",
+                options: ["doesn't", "don't", "am not", "isn't"],
+                ans: 1,
+                hint: "الضمير (I) وبعده فعل في المصدر (watch).. بننفي (I/We/You/They) بإيه؟",
+                explanation: "اخترنا (don't) لأن الضمير (I) يُنفى بـ (don't + الفعل في المصدر)."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "20. Sama never _______ to school on Fridays.",
+                options: ["go", "goes", "going", "don't go"],
+                ans: 1,
+                hint: "احذر من الخدعة! كلمة (never) مش بتسرق الـ S.. والفاعل (Sama) مفرد!",
+                explanation: "اخترنا (goes) لأن (never) لا تحذف الـ (s/es) من الفعل، وبما أن الفاعل (Sama) مفرد فالفعل يأخذ (es)."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "21. They don't _______ fast food.",
+                options: ["eats", "eating", "eat", "ate"],
+                ans: 2,
+                hint: "بعد (don't) لازم ييجي الفعل سادة (في المصدر بدون أي إضافات)!",
+                explanation: "اخترنا (eat) في المصدر لأن بعد (don't) يأتي الفعل بدون أي إضافات."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "22. Omar _______ have a car.",
+                options: ["don't", "doesn't", "isn't", "hasn't"],
+                ans: 1,
+                hint: "الفاعل (Omar) مفرد وبعد النقط فعل في المصدر (have).. ننفي المفرد بإيه؟",
+                explanation: "اخترنا (doesn't) لأن الفاعل (Omar) مفرد وجاء بعد النقط الفعل في المصدر (have)."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "23. My brother doesn't _______ coffee.",
+                options: ["drinks", "drink", "drinking", "drank"],
+                ans: 1,
+                hint: "أول ما عينك تشوف (doesn't) قبل النقط، اختار الفعل في المصدر بدون s فوراً!",
+                explanation: "اخترنا (drink) بدون (s) لوجود (doesn't) قبل النقط، وبعدها يأتي الفعل في المصدر."
+            },
+            {
+                level: "المستوى 3: مجرة النفي (don't / doesn't / never)",
+                q: "24. Cats _______ fly in the sky.",
+                options: ["doesn't", "don't", "isn't", "aren't"],
+                ans: 1,
+                hint: "كلمة (Cats) جمع وبعد النقط فعل مصدر (fly).. الجمع يُنفى بـ don't أم doesn't؟",
+                explanation: "اخترنا (don't) لأن الفاعل (Cats) اسم جمع وبعده فعل في المصدر (fly)."
+            },
+
+            // --- المستوى 4: محطة الرادار الفضائي (تكوين السؤال Do / Does / Wh- 25 - 32) ---
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "25. _______ you speak English well?",
+                options: ["Does", "Do", "Are", "Is"],
+                ans: 1,
+                hint: "السؤال فيه الفاعل (you) وفعل في المصدر (speak).. نسأل مع (you) بـ Do ولا Does؟",
+                explanation: "اخترنا (Do) لأن الفاعل في السؤال هو (you) ومعه فعل أساسي في المصدر (speak)."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "26. _______ Noha walk to school every day?",
+                options: ["Do", "Does", "Is", "Has"],
+                ans: 1,
+                hint: "الفاعل في السؤال (Noha) مفرد، ومعاها فعل مصدر (walk).. المفرد نسأل عنه بإيه؟",
+                explanation: "اخترنا (Does) لأن الفاعل (Noha) اسم مفرد ومعها فعل في المصدر (walk)."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "27. Where does your uncle _______?",
+                options: ["lives", "live", "living", "lived"],
+                ans: 1,
+                hint: "السؤال فيه (does) حرامي الـ S! يبقى الفعل في آخر السؤال لازم يكون إيه؟",
+                explanation: "اخترنا (live) في المصدر بدون (s) لوجود الفعل المساعد (does) في السؤال."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "28. _______ often do you go to the library? - Twice a week.",
+                options: ["What", "Where", "How", "When"],
+                ans: 2,
+                hint: "الإجابة فيها (Twice a week = مرتين في الأسبوع) وكلمة (often) بعد النقط.. بنسأل عن عدد المرات بإيه؟",
+                explanation: "اخترنا (How) لتكوين أداة الاستفهام (How often = كم مرة) لأن الإجابة (Twice a week) تدل على عدد المرات."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "29. Does Ahmed play basketball? - Yes, he _______.",
+                options: ["do", "play", "does", "is"],
+                ans: 2,
+                hint: "قاعدة المقص السهلة: السؤال بدأ بـ (Does)، يبقى الإجابة المختصرة بـ Yes لازم تنتهي بإيه؟",
+                explanation: "اخترنا (does) لأن السؤال يبدأ بـ (Does)، وفي الإجابة المختصرة نستخدم نفس الفعل المساعد (Yes, he does)."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "30. What time _______ the children go to bed?",
+                options: ["does", "do", "is", "are"],
+                ans: 1,
+                hint: "خدعة مهمة! كلمة (the children = الأطفال) جمع مش مفرد! ومع الجمع نستخدم do أم does؟",
+                explanation: "اخترنا (do) لأن الفاعل (the children) اسم جمع شاذ بمعنى (الأطفال)، والجمع يأخذ (do)."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "31. When does Salma _______ her room?",
+                options: ["tidies", "tidy", "tidying", "tidied"],
+                ans: 1,
+                hint: "طالما السؤال فيه (does)، رجّع الفعل للمصدر الأصلي بدون أي إضافات!",
+                explanation: "اخترنا (tidy) في المصدر لأن وجود (does) في السؤال يتطلب فعلاً في المصدر بدون (ies)."
+            },
+            {
+                level: "المستوى 4: رادار الأسئلة (Do / Does وأدوات الاستفهام)",
+                q: "32. _______ your parents live in Cairo? - No, they don't.",
+                options: ["Does", "Do", "Are", "Have"],
+                ans: 1,
+                hint: "(your parents) جمع، وحتى الإجابة في الآخر غششتك الحل (No, they don't)!",
+                explanation: "اخترنا (Do) لأن الفاعل (your parents) جمع، كما أن الإجابة المختصرة انتهت بـ (don't)."
+            },
+
+            // --- المستوى 5: الثقب الأسود للتركات الصعبة (ظروف التكرار + Verb to be + المواعيد الثابتة 33 - 40) ---
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "33. Adel _______ late for school.",
+                options: ["never is", "is never", "doesn't never", "never be"],
+                ans: 1,
+                hint: "أهم تركة في أولى إعدادي! مع (am / is / are) ظرف التكرار (never / always) بييجي بعدها مش قبلها!",
+                explanation: "اخترنا (is never) لأن ظروف التكرار (مثل never / always) تأتي **بعد** (am / is / are)، فنقول (is never)."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "34. Huda _______ early to school.",
+                options: ["comes always", "always comes", "always come", "is always come"],
+                ans: 1,
+                hint: "هنا فعل عادي (comes) والفاعل (Huda) مفرد.. ظرف التكرار (always) ييجي **قبل** الفعل العادي!",
+                explanation: "اخترنا (always comes) لأن ظرف التكرار (always) يأتي **قبل** الفعل الأساسي، وأضفنا (s) لأن (Huda) مفرد."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "35. _______ Dina happy today?",
+                options: ["Does", "Do", "Is", "Has"],
+                ans: 2,
+                hint: "ركز كويس! كلمة (happy = سعيدة) دي صفة مش فعل! لما ميكونش فيه فعل في السؤال مبنستخدمش Does، بنستخدم إيه؟",
+                explanation: "اخترنا (Is) وليس (Does) لأن الجملة لا يوجد بها فعل في المصدر، بل يوجد صفة (happy)، ومع الصفات نستخدم (Am / Is / Are)."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "36. The boys _______ tired after the match.",
+                options: ["don't", "aren't", "doesn't", "isn't"],
+                ans: 1,
+                hint: "كلمة (tired = متعبين) صفة ومفيش فعل في الجملة! والفاعل (The boys) جمع.. ننفي الصفة مع الجمع بإيه؟",
+                explanation: "اخترنا (aren't) لأن الجملة ليس بها فعل أساسي (كلمة tired صفة)، والفاعل (The boys) جمع فيأخذ (aren't)."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "37. The train to Aswan _______ at 7:00 PM tomorrow.",
+                options: ["leave", "leaves", "leaving", "to leave"],
+                ans: 1,
+                hint: "مواعيد القطارات والطائرات والامتحانات الثابتة بتاخد مضارع بسيط حتى لو فيه tomorrow.. والقطار (The train) مفرد!",
+                explanation: "اخترنا (leaves) لأن جداول المواعيد الثابتة (مثل القطارات والطائرات) نستخدم معها المضارع البسيط، والفاعل (The train) مفرد."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "38. My mother _______ clever at cooking.",
+                options: ["always is", "is always", "always does", "does always"],
+                ans: 1,
+                hint: "كلمة (clever = ماهرة) صفة، فتأخذ (is)، وظرف التكرار (always) ييجي **بعد** (is)!",
+                explanation: "اخترنا (is always) لعدم وجود فعل أساسي (clever صفة فتأخذ is)، وظرف التكرار (always) يأتي بعد (is)."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "39. Water _______ at 100 degrees Celsius.",
+                options: ["boil", "boils", "boiling", "are boiling"],
+                ans: 1,
+                hint: "حقيقة علمية والفاعل (Water = الماء) اسم لا يُعد يعامل معاملة المفرد (= It)!",
+                explanation: "اخترنا (boils) لأن هذه حقيقة علمية، وكلمة (Water) اسم لا يُعد يُعامل معاملة المفرد فيأخذ الفعل المضاف له (s)."
+            },
+            {
+                level: "المستوى 5: قمة الأبطال (أصعب التركات: ظروف التكرار و Verb to be)",
+                q: "40. Everyone in our class _______ Mr. Hussein very much.",
+                options: ["love", "loves", "loving", "are loving"],
+                ans: 1,
+                hint: "سؤال الختام للأبطال! كلمة (Everyone = كل شخص) تعامل دائماً معاملة الفاعل المفرد!",
+                explanation: "اخترنا (loves) بالـ (s) لأن كلمة (Everyone) تعامل معاملة المفرد دائماً في اللغة الإنجليزية."
+            }
+        ];
+
+        // ==========================================
+        // 3. متغيرات حالة اللعبة والتحكم في الشاشات
+        // ==========================================
+        let studentName = "";
+        let currentIndex = 0;
+        let score = 0;
+        let answeredCurrent = false;
+
+        function goToRulesScreen() {
+            const input = document.getElementById('student-name-input');
+            const err = document.getElementById('name-error');
+            const nameVal = input.value.trim();
+
+            if (!nameVal) {
+                err.classList.remove('hidden');
+                playTone('wrong');
+                input.focus();
+                return;
+            }
+
+            err.classList.add('hidden');
+            studentName = nameVal;
+            playTone('click');
+
+            // إظهار اسم الطالب في الهيدر وشاشة المفاتيح
+            const headerName = document.getElementById('header-student-name');
+            headerName.textContent = "القائد: " + studentName;
+            headerName.classList.remove('hidden');
+
+            document.getElementById('rules-student-name').textContent = studentName;
+
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-rules').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startGame() {
+            playTone('click');
+            currentIndex = 0;
+            score = 0;
+
+            document.getElementById('screen-rules').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.remove('hidden');
+            document.getElementById('quick-rules-btn').classList.remove('hidden');
+
+            renderQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestion() {
+            answeredCurrent = false;
+            const qObj = questionsData[currentIndex];
+
+            // تحديث العدادات وشريط التقدم
+            document.getElementById('level-badge').textContent = qObj.level;
+            document.getElementById('q-counter').textContent = `${currentIndex + 1} / ${questionsData.length}`;
+            document.getElementById('live-score').textContent = score;
+            const progressPercent = ((currentIndex + 1) / questionsData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            // إخفاء التلميح والتعليل وزر التالي
+            document.getElementById('hint-box').classList.add('hidden');
+            document.getElementById('explanation-box').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+
+            // عرض السؤال مع تلوين النقط
+            const formattedQ = qObj.q.replace('_______', '<span class="text-cyan-400 underline decoration-dotted px-2">_______</span>');
+            document.getElementById('question-text').innerHTML = formattedQ;
+
+            // إنشاء أزرار الاختيارات
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            qObj.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-3.5 sm:p-4 rounded-xl sm:rounded-2xl text-left font-bold text-base sm:text-xl text-white flex items-center justify-between gap-3";
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-indigo-500/30 border border-indigo-400/50 flex items-center justify-center text-sm font-black text-cyan-300 shrink-0">${letters[idx]}</span>
+                        <span class="truncate">${optText}</span>
+                    </div>
+                    <i class="fa-regular fa-circle text-slate-400 status-icon shrink-0"></i>
+                `;
+                btn.onclick = () => selectAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function showCurrentKeyHint() {
+            playTone('click');
+            const qObj = questionsData[currentIndex];
+            const hintBox = document.getElementById('hint-box');
+            document.getElementById('hint-text').textContent = "شفرة الحل السريع: " + qObj.hint;
+            hintBox.classList.remove('hidden');
+        }
+
+        function selectAnswer(selectedIndex, clickedBtn) {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+
+            const qObj = questionsData[currentIndex];
+            const allBtns = document.querySelectorAll('#options-container button');
+            const isCorrect = (selectedIndex === qObj.ans);
+
+            allBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                const icon = btn.querySelector('.status-icon');
+                if (idx === qObj.ans) {
+                    btn.classList.add('option-correct');
+                    icon.className = 'fa-solid fa-circle-check text-emerald-400 text-xl status-icon shrink-0';
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('option-wrong');
+                    icon.className = 'fa-solid fa-circle-xmark text-rose-400 text-xl status-icon shrink-0';
+                }
+            });
+
+            // تحديث الدرجة وتشغيل الصوت
+            if (isCorrect) {
+                score++;
+                document.getElementById('live-score').textContent = score;
+                playTone('correct');
+            } else {
+                playTone('wrong');
+            }
+
+            // تعويض الكلمة الصحيحة داخل الجملة
+            const correctWord = qObj.options[qObj.ans];
+            document.getElementById('question-text').innerHTML = qObj.q.replace(
+                '_______',
+                `<span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/30 border border-emerald-400 text-emerald-300">${correctWord}</span>`
+            );
+
+            // إظهار صندوق التعليل والشرح
+            const expBox = document.getElementById('explanation-box');
+            const expIcon = document.getElementById('exp-icon');
+            const expTitle = document.getElementById('exp-title');
+            const expReason = document.getElementById('exp-reason');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                expBox.className = "rounded-2xl p-3.5 sm:p-5 mb-4 border-2 bg-emerald-950/60 border-emerald-500/60";
+                expIcon.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 text-base sm:text-xl bg-emerald-500/20 text-emerald-400 border border-emerald-400";
+                expIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                expTitle.className = "font-black text-sm sm:text-lg mb-1 text-emerald-300";
+                expTitle.textContent = `إجابة صحيحة وممتازة يا ${studentName}! 🌟`;
+            } else {
+                expBox.className = "rounded-2xl p-3.5 sm:p-5 mb-4 border-2 bg-rose-950/60 border-rose-500/60";
+                expIcon.className = "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 text-base sm:text-xl bg-rose-500/20 text-rose-400 border border-rose-400";
+                expIcon.innerHTML = '<i class="fa-solid fa-lightbulb"></i>';
+                expTitle.className = "font-black text-sm sm:text-lg mb-1 text-rose-300";
+                expTitle.textContent = `لا بأس يا ${studentName}! الإجابة الصحيحة هي (${correctWord}) 💡`;
+            }
+
+            expReason.textContent = "التعليل والقاعدة: " + qObj.explanation;
+
+            // إظهار زر السؤال التالي أو تسليم المهمة في السؤال الـ 40
+            const nextBtn = document.getElementById('next-btn');
+            const nextBtnText = document.getElementById('next-btn-text');
+
+            if (currentIndex === questionsData.length - 1) {
+                nextBtnText.textContent = "تسليم المهمة وعرض الدرجة النهائية 🚀";
+            } else {
+                nextBtnText.textContent = "السؤال التالي";
+            }
+
+            nextBtn.classList.remove('hidden');
+
+            // تمرير سلس على شاشات الموبايل لرؤية التعليل وزر السؤال التالي
+            if (window.innerWidth < 640) {
+                setTimeout(() => {
+                    nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            }
+        }
+
+        function nextQuestion() {
+            playTone('click');
+            if (currentIndex < questionsData.length - 1) {
+                currentIndex++;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showFinalResults();
+            }
+        }
+
+        function showFinalResults() {
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('quick-rules-btn').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const total = questionsData.length;
+            const percentage = Math.round((score / total) * 100);
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('result-student-line').textContent = `القائد الفضائي: ${studentName}`;
+
+            const iconWrap = document.getElementById('result-icon-wrap');
+            const mainMsg = document.getElementById('result-main-msg');
+            const percBadge = document.getElementById('final-percentage');
+            const advice = document.getElementById('result-advice');
+
+            // إذا حصل على 28 من 40 (70%) أو أكثر -> "عاش يبطل"
+            if (score >= 28) {
+                playTone('win');
+                iconWrap.className = "w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-xl border-4 bg-emerald-500/20 border-emerald-400 text-yellow-300 floating";
+                iconWrap.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+
+                mainMsg.className = "text-3xl sm:text-4xl md:text-5xl font-black mb-2 text-emerald-400";
+                mainMsg.textContent = "عاش يبطل! 🚀🏆";
+
+                percBadge.className = "inline-block px-4 py-1 rounded-full text-xs sm:text-sm font-bold mt-2 bg-emerald-500/20 text-emerald-300 border border-emerald-400";
+                percBadge.textContent = `نسبة النجاح: ${percentage}% - مستوى رائع!`;
+
+                advice.textContent = `أحسنت يا ${studentName}! لقد أتقنت قواعد ومفاتيح المضارع البسيط للصف الأول الإعدادي بجدارة ودمرت الكويكبات بنجاح.`;
+            } else {
+                playTone('wrong');
+                iconWrap.className = "w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full flex items-center justify-center text-5xl sm:text-6xl mb-4 shadow-xl border-4 bg-amber-500/20 border-amber-400 text-amber-300";
+                iconWrap.innerHTML = '<i class="fa-solid fa-rotate"></i>';
+
+                mainMsg.className = "text-3xl sm:text-4xl md:text-5xl font-black mb-2 text-amber-400";
+                mainMsg.textContent = "حاول مرة آخري 💪✨";
+
+                percBadge.className = "inline-block px-4 py-1 rounded-full text-xs sm:text-sm font-bold mt-2 bg-amber-500/20 text-amber-300 border border-amber-400";
+                percBadge.textContent = `نسبة النجاح: ${percentage}% - يمكنك تحقيق الأفضل!`;
+
+                advice.textContent = `لا تيأس يا ${studentName}! راجع المفاتيح الـ 6 السحرية وجرب المهمة مرة أخرى وستحصل على الدرجة النهائية بإذن الله.`;
+            }
+        }
+
+        function restartSameStudent() {
+            playTone('click');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-rules').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetToNewStudent() {
+            playTone('click');
+            studentName = "";
+            document.getElementById('student-name-input').value = "";
+            document.getElementById('header-student-name').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-welcome').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleRulesModal() {
+            playTone('click');
+            const modal = document.getElementById('rules-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // ==========================================
+        // 4. رسم خلفية الفضاء والنجوم المتحركة (Canvas)
+        // ==========================================
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.min(130, Math.floor((canvas.width * canvas.height) / 9000));
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.8 + 0.4,
+                    speed: Math.random() * 0.45 + 0.1,
+                    alpha: Math.random() * 0.8 + 0.2
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < stars.length; i++) {
+                const s = stars[i];
+                ctx.globalAlpha = s.alpha;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                s.y += s.speed;
+                if (s.y > canvas.height) {
+                    s.y = 0;
+                    s.x = Math.random() * canvas.width;
+                }
+            }
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function () {
+            resizeCanvas();
+            animateStars();
+        };
+    </script>
+</body>
+</html>
